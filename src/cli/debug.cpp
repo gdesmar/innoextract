@@ -23,9 +23,6 @@
 #include <ctime>
 #include <iostream>
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/range/size.hpp>
-
 #include "loader/offsets.hpp"
 
 #include "setup/component.hpp"
@@ -538,7 +535,7 @@ static const char * magic_numbers[][2] = {
 
 static const char * guess_extension(const std::string & data) {
 	
-	for(size_t i = 0; i < size_t(boost::size(magic_numbers)); i++) {
+	for(size_t i = 0; i < size_t(std::size(magic_numbers)); i++) {
 		
 		size_t n = strlen(magic_numbers[i][0]);
 		

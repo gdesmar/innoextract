@@ -29,7 +29,6 @@
 #include <stddef.h>
 #include <ostream>
 
-#include <boost/range/size.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #include "util/console.hpp"
@@ -71,7 +70,7 @@ struct enum_names {
 	const char * enum_names<get_enum<Enum>::type>::name = (Name); \
 	const char * enum_names<get_enum<Enum>::type>::names[] = { __VA_ARGS__ }; \
 	const size_t enum_names<get_enum<Enum>::type>::count \
-	 = size_t(boost::size(enum_names<get_enum<Enum>::type>::names));
+	 = size_t(std::size(enum_names<get_enum<Enum>::type>::names));
 
 #define USE_ENUM_NAMES(Enum) \
 	(void)enum_names<get_enum<Enum>::type>::count; \

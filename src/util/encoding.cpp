@@ -69,7 +69,6 @@
 #endif
 
 #include <boost/static_assert.hpp>
-#include <boost/range/size.hpp>
 
 #include "util/log.hpp"
 #include "util/math.hpp"
@@ -570,12 +569,12 @@ void utf8_to_windows1252(const std::string & from, std::string & to) {
 		// Windows-1252 maps almost directly to Unicode - yay!
 		if(chr >= 256 || (chr >= 128 && chr < 160)) {
 			size_t j = 0;
-			for(; j < size_t(boost::size(windows1252_replacements)); j++) {
+			for(; j < size_t(std::size(windows1252_replacements)); j++) {
 				if(chr == windows1252_replacements[j] && windows1252_replacements[j] != replacement_char) {
 					break;
 				}
 			}
-			if(j < size_t(boost::size(windows1252_replacements))) {
+			if(j < size_t(std::size(windows1252_replacements))) {
 				chr = unicode_char(128 + j);
 			} else {
 				chr = replacement_char;
