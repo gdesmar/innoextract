@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem/path.hpp>
@@ -460,7 +459,7 @@ int main(int argc, char * argv[]) {
 	
 	bool suggest_bug_report = false;
 	try {
-		BOOST_FOREACH(const std::string & file, files) {
+		for(const std::string & file : files) {
 			process_file(file, o);
 			if(!o.data_version && files.size() > 1) {
 				std::cout << '\n';

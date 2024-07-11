@@ -10,7 +10,6 @@
     "boost-program-options",
     "boost-system",
     "boost-date-time",
-    "boost-foreach",
     "boost-ptr-container"
   ]
 }

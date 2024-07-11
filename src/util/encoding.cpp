@@ -68,7 +68,6 @@
 #include <windows.h>
 #endif
 
-#include <boost/foreach.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/range/size.hpp>
@@ -237,7 +236,7 @@ bool is_extended_ascii(codepage_id codepage) {
 
 bool is_ascii(const std::string & data) {
 	// String in an extended ASCII encoding contains only ASCII characters
-	BOOST_FOREACH(char c, data) {
+	for(char c : data) {
 		if(boost::uint8_t(c) >= 128) {
 			return false;
 		}
@@ -540,7 +539,7 @@ void windows1252_to_utf8(const std::string & from, std::string & to) {
 	
 	bool warn = false;
 	
-	BOOST_FOREACH(char c, from) {
+	for(char c : from) {
 		
 		// Windows-1252 maps almost directly to Unicode - yay!
 		unicode_char chr = boost::uint8_t(c);
@@ -619,7 +618,7 @@ iconv_t get_converter(codepage_id codepage, bool reverse) {
 	// Otherwise, try a few different codepage name prefixes
 	if(handle == iconv_t(-1)) {
 		const char * prefixes[] = { "MSCP", "CP", "WINDOWS-", "MS", "IBM", "IBM-", "" };
-		BOOST_FOREACH(const char * prefix, prefixes) {
+		for(const char * prefix : prefixes) {
 			std::ostringstream oss;
 			oss << prefix << std::setfill('0') << std::setw(3) << codepage;
 			handle = reverse ? iconv_open(oss.str().c_str(), "UTF-8") : iconv_open("UTF-8", oss.str().c_str());

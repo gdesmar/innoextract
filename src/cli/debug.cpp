@@ -23,7 +23,6 @@
 #include <ctime>
 #include <iostream>
 
-#include <boost/foreach.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/range/size.hpp>
 
