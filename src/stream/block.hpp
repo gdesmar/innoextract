@@ -31,8 +31,7 @@
 #include <ios>
 #include <istream>
 #include <string>
-
-#include "util/unique_ptr.hpp"
+#include <memory>
 
 namespace setup { struct version; }
 
@@ -54,8 +53,8 @@ class block_reader {
 	
 public:
 	
-	typedef std::istream                 type;
-	typedef util::unique_ptr<type>::type pointer;
+	typedef std::istream          type;
+	typedef std::unique_ptr<type> pointer;
 	
 	/*!
 	 * Wrap an input stream to read and decompress setup header blocks.
