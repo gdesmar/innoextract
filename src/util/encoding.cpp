@@ -69,7 +69,6 @@
 #endif
 
 #include <boost/static_assert.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/range/size.hpp>
 
 #include "util/log.hpp"
@@ -595,7 +594,7 @@ void utf8_to_windows1252(const std::string & from, std::string & to) {
 
 #if INNOEXTRACT_HAVE_ICONV
 
-typedef boost::unordered_map<codepage_id, iconv_t> converter_map;
+typedef std::unordered_map<codepage_id, iconv_t> converter_map;
 converter_map converters;
 
 iconv_t get_converter(codepage_id codepage, bool reverse) {

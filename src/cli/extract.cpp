@@ -28,10 +28,9 @@
 #include <sstream>
 #include <vector>
 #include <limits>
-
+#include <unordered_map>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
@@ -439,13 +438,13 @@ const char * handle_collision(const setup::file_entry & oldfile, const setup::da
 	return NULL; // overwrite old file
 }
 
-typedef boost::unordered_map<std::string, processed_file> FilesMap;
+typedef std::unordered_map<std::string, processed_file> FilesMap;
 #if BOOST_VERSION >= 104800
 typedef boost::container::flat_map<std::string, processed_directory> DirectoriesMap;
 #else
 typedef std::map<std::string, processed_directory> DirectoriesMap;
 #endif
-typedef boost::unordered_map<std::string, std::vector<processed_file> > CollisionMap;
+typedef std::unordered_map<std::string, std::vector<processed_file> > CollisionMap;
 
 std::string parent_dir(const std::string & path) {
 	
