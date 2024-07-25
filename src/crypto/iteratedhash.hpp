@@ -31,7 +31,6 @@
 #include <cstring>
 
 #include <boost/cstdint.hpp>
-#include <boost/range/size.hpp>
 
 #include "crypto/checksum.hpp"
 #include "util/align.hpp"
@@ -132,7 +131,7 @@ size_t iterated_hash<T>::hash(const char * input, size_t length) {
 		do {
 			
 			hash_word aligned_buffer[block_size / sizeof(hash_word)];
-			byte_order::load(input, aligned_buffer, size_t(boost::size(aligned_buffer)));
+			byte_order::load(input, aligned_buffer, size_t(std::size(aligned_buffer)));
 			
 			transform::transform(state, aligned_buffer);
 			

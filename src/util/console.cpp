@@ -40,7 +40,6 @@
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 
 #include "util/output.hpp"
 #include "util/windows.hpp"

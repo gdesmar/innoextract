@@ -189,7 +189,7 @@ block_reader::pointer block_reader::get(std::istream & base, const setup::versio
 	
 	debug("[block] size: " << stored_size << "  compression: " << compression);
 	
-	util::unique_ptr<io::filtering_istream>::type fis(new io::filtering_istream);
+	std::unique_ptr<io::filtering_istream> fis(new io::filtering_istream);
 	
 	switch(compression) {
 		case Stored: break;

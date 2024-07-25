@@ -227,7 +227,6 @@ elseif(NOT CXX_STD_VERSION LESS 2011)
 	if(WIN32)
 		check_cxx11("std::codecvt_utf8_utf16" INNOEXTRACT_HAVE_STD_CODECVT_UTF8_UTF16 1600)
 	endif()
-	check_cxx11("std::unique_ptr" INNOEXTRACT_HAVE_STD_UNIQUE_PTR 1600)
 endif()
 
 # Don't expose internal symbols to the outside world by default
@@ -442,7 +441,6 @@ set(INNOEXTRACT_SOURCES
 	src/util/time.hpp
 	src/util/time.cpp
 	src/util/types.hpp
-	src/util/unique_ptr.hpp
 	src/util/windows.hpp
 	src/util/windows.cpp if WIN32
 	

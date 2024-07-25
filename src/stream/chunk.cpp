@@ -28,7 +28,6 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/range/size.hpp>
 
 #include "release.hpp"
 #include "crypto/arc4.hpp"

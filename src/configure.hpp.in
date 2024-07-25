@@ -30,7 +30,6 @@
 // C++11 functionality
 #cmakedefine01 INNOEXTRACT_HAVE_ALIGNOF
 #cmakedefine01 INNOEXTRACT_HAVE_STD_CODECVT_UTF8_UTF16
-#cmakedefine01 INNOEXTRACT_HAVE_STD_UNIQUE_PTR
 
 // Optional dependencies
 #cmakedefine01 INNOEXTRACT_HAVE_ARC4

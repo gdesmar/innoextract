@@ -31,7 +31,6 @@
 #include <boost/iostreams/chain.hpp>
 
 #include "crypto/checksum.hpp"
-#include "util/unique_ptr.hpp"
 
 namespace stream {
 
@@ -74,9 +73,9 @@ class file_reader {
 	
 public:
 	
-	typedef std::istream                 type;
-	typedef util::unique_ptr<type>::type pointer;
-	typedef file                         file_t;
+	typedef std::istream          type;
+	typedef std::unique_ptr<type> pointer;
+	typedef file                  file_t;
 	
 	/*!
 	 * Wrap a \ref chunk_reader to read a single file.

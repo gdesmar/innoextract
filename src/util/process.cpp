@@ -30,7 +30,6 @@
 #include <string.h>
 #include <windows.h>
 
-#include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
 #elif INNOEXTRACT_HAVE_POSIX_SPAWNP || (INNOEXTRACT_HAVE_FORK && INNOEXTRACT_HAVE_EXECVP)

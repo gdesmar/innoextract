@@ -29,9 +29,6 @@
 #include <boost/static_assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include "boost/algorithm/string.hpp"
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/size.hpp>
 
 #include "util/load.hpp"
 #include "util/log.hpp"
@@ -183,6 +180,7 @@ const known_version versions[] = {
 	{ "Inno Setup Setup Data (5.6.2) (u)", /* prerelease */ INNO_VERSION_EXT(5, 6,  2, 0), version::Unicode },
 	{ "Inno Setup Setup Data (6.0.0) (u)",                  INNO_VERSION_EXT(6, 0,  0, 0), version::Unicode },
 	{ "Inno Setup Setup Data (6.1.0) (u)",                  INNO_VERSION_EXT(6, 1,  0, 0), version::Unicode },
+	{ "Inno Setup Setup Data (6.3.0)",                      INNO_VERSION_EXT(6, 3,  0, 0), version::Unicode },
 };
 
 } // anonymous namespace
@@ -220,7 +218,7 @@ void version::load(std::istream & is) {
 	
 	if(legacy_version[0] == 'i' && legacy_version[sizeof(legacy_version) - 1] == '\x1a') {
 		
-		for(size_t i = 0; i < size_t(boost::size(legacy_versions)); i++) {
+		for(size_t i = 0; i < size_t(std::size(legacy_versions)); i++) {
 			if(!memcmp(legacy_version, legacy_versions[i].name, sizeof(legacy_version))) {
 				value = legacy_versions[i].version;
 				variant = legacy_versions[i].variant;
@@ -269,7 +267,7 @@ void version::load(std::istream & is) {
 	        std::streamsize(sizeof(version_string) - sizeof(legacy_version)));
 	
 	
-	for(size_t i = 0; i < size_t(boost::size(versions)); i++) {
+	for(size_t i = 0; i < size_t(std::size(versions)); i++) {
 		if(versions[i].name[0] != '\0' && !memcmp(version_string, versions[i].name, sizeof(version_string))) {
 			value = versions[i].version;
 			variant = versions[i].variant;
@@ -279,7 +277,7 @@ void version::load(std::istream & is) {
 		}
 	}
 	
-	char * end = std::find(version_string, version_string + boost::size(version_string), '\0');
+	char * end = std::find(version_string, version_string + std::size(version_string), '\0');
 	std::string version_str(version_string, end);
 	debug("unknown version: \"" << version_str << '"');
 	if(!boost::contains(version_str, "Inno Setup")) {
@@ -402,9 +400,9 @@ bool version::is_ambiguous() const {
 
 version_constant version::next() {
 	
-	const known_legacy_version * legacy_end = boost::end(legacy_versions);
+	const known_legacy_version * legacy_end = std::end(legacy_versions);
 	const known_legacy_version * legacy_result;
-	legacy_result = std::upper_bound(boost::begin(legacy_versions), legacy_end, value);
+	legacy_result = std::upper_bound(std::begin(legacy_versions), legacy_end, value);
 	while(legacy_result != legacy_end && legacy_result->variant != variant) {
 		legacy_result++;
 	}
@@ -412,8 +410,8 @@ version_constant version::next() {
 		return legacy_result->version;
 	}
 	 
-	const known_version * end = boost::end(versions);
-	const known_version * result = std::upper_bound(boost::begin(versions), end, value);
+	const known_version * end = std::end(versions);
+	const known_version * result = std::upper_bound(std::begin(versions), end, value);
 	while(result != end && result->variant != variant) {
 		result++;
 	}

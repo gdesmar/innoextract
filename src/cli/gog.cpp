@@ -28,7 +28,6 @@
 #include <signal.h>
 
 #include <boost/cstdint.hpp>
-#include <boost/foreach.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -63,7 +62,7 @@ std::string get_game_id(const setup::info & info) {
 	const char * prefix = "SOFTWARE\\GOG.com\\Games\\";
 	size_t prefix_length = std::strlen(prefix);
 	
-	BOOST_FOREACH(const setup::registry_entry & entry, info.registry_entries) {
+	for(const setup::registry_entry & entry : info.registry_entries) {
 		
 		if(!boost::istarts_with(entry.key, prefix)) {
 			continue;
@@ -322,7 +321,7 @@ void process_rar_files(const std::vector<fs::path> & files,
 		// When listing contents or for single-file archives, pass the bin file to unrar
 		
 		bool ok = true;
-		BOOST_FOREACH(const fs::path & file, files) {
+		for(const fs::path & file : files) {
 			if(!process_rar_file(file.string(), o, password)) {
 				ok = false;
 			}
@@ -364,7 +363,7 @@ void process_rar_files(const std::vector<fs::path> & files,
 			
 			size_t i = 0;
 			std::ostringstream oss;
-			BOOST_FOREACH(const fs::path & file, files) {
+			for(const fs::path & file : files) {
 				
 				oss.str(std::string());
 				oss << basename << ".r" << std::setfill('0') << std::setw(2) << i;
@@ -508,7 +507,7 @@ void probe_bin_files(const extract_options & o, const setup::info & info,
 
 	boost::uint32_t max_slice = 0;
 	if(external) {
-		BOOST_FOREACH(const setup::data_entry & location, info.data_entries) {
+		for(const setup::data_entry & location : info.data_entries) {
 			max_slice = std::max(max_slice, location.chunk.first_slice);
 			max_slice = std::max(max_slice, location.chunk.last_slice);
 		}

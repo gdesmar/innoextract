@@ -28,16 +28,13 @@
 #include <sstream>
 #include <vector>
 #include <limits>
-
-#include <boost/foreach.hpp>
+#include <unordered_map>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/range/size.hpp>
 
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 104800
@@ -59,6 +56,7 @@
 #include "setup/file.hpp"
 #include "setup/info.hpp"
 #include "setup/language.hpp"
+#include "setup/component.hpp"
 
 #include "stream/chunk.hpp"
 #include "stream/file.hpp"
@@ -281,7 +279,7 @@ class path_filter {
 public:
 	
 	explicit path_filter(const extract_options & o) {
-		BOOST_FOREACH(const std::string & include, o.include) {
+		for(const std::string & include : o.include) {
 			if(!include.empty() && include[0] == setup::path_sep) {
 				includes.push_back(Filter(true, boost::to_lower_copy(include) + setup::path_sep));
 			} else {
@@ -297,7 +295,7 @@ public:
 			return true;
 		}
 		
-		BOOST_FOREACH(const Filter & i, includes) {
+		for(const Filter & i : includes) {
 			if(i.first) {
 				if(!i.second.compare(1, i.second.size() - 1,
 				                     path + setup::path_sep, 0, i.second.size() - 1)) {
@@ -439,13 +437,13 @@ const char * handle_collision(const setup::file_entry & oldfile, const setup::da
 	return NULL; // overwrite old file
 }
 
-typedef boost::unordered_map<std::string, processed_file> FilesMap;
+typedef std::unordered_map<std::string, processed_file> FilesMap;
 #if BOOST_VERSION >= 104800
 typedef boost::container::flat_map<std::string, processed_directory> DirectoriesMap;
 #else
 typedef std::map<std::string, processed_directory> DirectoriesMap;
 #endif
-typedef boost::unordered_map<std::string, std::vector<processed_file> > CollisionMap;
+typedef std::unordered_map<std::string, std::vector<processed_file> > CollisionMap;
 
 std::string parent_dir(const std::string & path) {
 	
@@ -571,7 +569,7 @@ bool rename_collision(const extract_options & o, FilesMap & processed_files, con
 void rename_collisions(const extract_options & o, FilesMap & processed_files,
                        const CollisionMap & collisions) {
 	
-	BOOST_FOREACH(const CollisionMap::value_type & collision, collisions) {
+	for(const CollisionMap::value_type & collision : collisions) {
 		
 		const std::string & path = collision.first;
 		
@@ -582,7 +580,7 @@ void rename_collisions(const extract_options & o, FilesMap & processed_files,
 		bool common_component = true;
 		bool common_language = true;
 		bool common_arch = true;
-		BOOST_FOREACH(const processed_file & other, collision.second) {
+		for(const processed_file & other : collision.second) {
 			common_component = common_component && other.entry().components == file.components;
 			common_language = common_language && other.entry().languages == file.languages;
 			common_arch = common_arch && (other.entry().options & arch_flags) == (file.options & arch_flags);
@@ -594,7 +592,7 @@ void rename_collisions(const extract_options & o, FilesMap & processed_files,
 			processed_files.erase(path);
 		}
 		
-		BOOST_FOREACH(const processed_file & other, collision.second) {
+		for(const processed_file & other : collision.second) {
 			rename_collision(o, processed_files, path, other,
 			                 common_component, common_language, common_arch, false);
 		}
@@ -628,21 +626,21 @@ bool print_file_info(const extract_options & o, const setup::info & info) {
 	}
 	#endif
 	
-	bool multiple_sections = (o.list_languages + o.gog_game_id + o.list + o.show_password > 1);
+	bool multiple_sections = (o.list_languages + o.list_components + o.gog_game_id + o.list + o.show_password > 1);
 	if(!o.quiet && multiple_sections) {
 		std::cout << '\n';
 	}
-	
+
 	if(o.list_languages) {
 		if(o.silent) {
-			BOOST_FOREACH(const setup::language_entry & language, info.languages) {
+			for(const setup::language_entry & language : info.languages) {
 				std::cout << language.name <<' ' << language.language_name << '\n';
 			}
 		} else {
 			if(multiple_sections) {
 				std::cout << "Languages:\n";
 			}
-			BOOST_FOREACH(const setup::language_entry & language, info.languages) {
+			for(const setup::language_entry & language : info.languages) {
 				std::cout << " - " << color::green << language.name << color::reset;
 				if(!language.language_name.empty()) {
 					std::cout << ": " << color::white << language.language_name << color::reset;
@@ -654,6 +652,26 @@ bool print_file_info(const extract_options & o, const setup::info & info) {
 			}
 		}
 		if((o.silent || !o.quiet) && multiple_sections) {
+			std::cout << '\n';
+		}
+	}
+
+	if (o.list_components) {
+		if (multiple_sections) {
+			std::cout << "Components:\n";
+		}
+		for(const setup::component_entry & component : info.components) {
+			std::cout << " - " << color::green << component.name << color::reset;
+			if (!component.description.empty()) {
+				std::cout << ": " << color::white << component.description << color::reset;
+			}
+			std::cout << '\n';
+		}
+		if (info.components.empty()) {
+			std::cout << " (none)\n";
+		}
+
+		if ((o.silent || !o.quiet) && multiple_sections) {
 			std::cout << '\n';
 		}
 	}
@@ -734,7 +752,7 @@ processed_entries filter_entries(const extract_options & o, const setup::info & 
 	path_filter includes(o);
 	
 	// Filter the directories to be created
-	BOOST_FOREACH(const setup::directory_entry & directory, info.directories) {
+	for(const setup::directory_entry & directory : info.directories) {
 		
 		if(!o.extract_temp && (directory.options & setup::directory_entry::DeleteAfterInstall)) {
 			continue; // Ignore temporary dirs
@@ -747,7 +765,13 @@ processed_entries filter_entries(const extract_options & o, const setup::info & 
 		} else if(o.language_only) {
 			continue; // Ignore language-agnostic dirs
 		}
-		
+
+		if(!directory.components.empty()) {
+			if(!o.component.empty() && !setup::expression_match(o.component, directory.components)) {
+				continue;
+			}
+		}
+
 		std::string path = o.filenames.convert(directory.name);
 		if(path.empty()) {
 			continue; // Don't know what to do with this
@@ -775,7 +799,7 @@ processed_entries filter_entries(const extract_options & o, const setup::info & 
 	}
 	
 	// Filter the files to be extracted
-	BOOST_FOREACH(const setup::file_entry & file, info.files) {
+	for(const setup::file_entry & file : info.files) {
 		
 		if(file.location >= info.data_entries.size()) {
 			continue; // Ignore external files (copy commands)
@@ -792,7 +816,13 @@ processed_entries filter_entries(const extract_options & o, const setup::info & 
 		} else if(o.language_only) {
 			continue; // Ignore language-agnostic files
 		}
-		
+
+		if (!file.components.empty()) {
+			if (!o.component.empty() && !setup::expression_match(o.component, file.components)) {
+				continue;
+			}
+		}
+
 		std::string path = o.filenames.convert(file.destination);
 		if(path.empty()) {
 			continue; // Internal file, not extracted
@@ -952,6 +982,9 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	if(o.list_languages) {
 		entries |= setup::info::Languages;
 	}
+	if(o.list_components) {
+		entries |= setup::info::Components;
+	}
 	if(o.gog_game_id || o.gog) {
 		entries |= setup::info::RegistryEntries;
 	}
@@ -992,7 +1025,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 		throw format_error(oss.str());
 	}
 	
-	if(o.gog_galaxy && (o.list || o.test || o.extract || o.list_languages)) {
+	if(o.gog_galaxy && (o.list || o.test || o.extract || o.list_languages || o.list_components)) {
 		gog::parse_galaxy_files(info, o.gog);
 	}
 	
@@ -1041,7 +1074,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	
 	if(o.list || o.extract) {
 		
-		BOOST_FOREACH(const DirectoriesMap::value_type & i, processed.directories) {
+		for(const DirectoriesMap::value_type & i : processed.directories) {
 			
 			const std::string & path = i.second.path();
 			
@@ -1078,14 +1111,14 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	typedef std::pair<const processed_file *, boost::uint64_t> output_location;
 	std::vector< std::vector<output_location> > files_for_location;
 	files_for_location.resize(info.data_entries.size());
-	BOOST_FOREACH(const FilesMap::value_type & i, processed.files) {
+	for(const FilesMap::value_type & i : processed.files) {
 		const processed_file & file = i.second;
 		files_for_location[file.entry().location].push_back(output_location(&file, 0));
 		if(o.test || o.extract) {
 			boost::uint64_t offset = info.data_entries[file.entry().location].uncompressed_size;
 			boost::uint32_t sort_slice = info.data_entries[file.entry().location].chunk.first_slice;
 			boost::uint32_t sort_offset = info.data_entries[file.entry().location].chunk.sort_offset;
-			BOOST_FOREACH(boost::uint32_t location, file.entry().additional_locations) {
+			for(boost::uint32_t location : file.entry().additional_locations) {
 				setup::data_entry & data = info.data_entries[location];
 				files_for_location[location].push_back(output_location(&file, offset));
 				offset += data.uncompressed_size;
@@ -1140,7 +1173,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	typedef boost::ptr_map<const processed_file *, file_output> multi_part_outputs;
 	multi_part_outputs multi_outputs;
 	
-	BOOST_FOREACH(const Chunks::value_type & chunk, chunks) {
+	for(const Chunks::value_type & chunk : chunks) {
 		
 		debug("[starting " << chunk.first.compression << " chunk @ slice " << chunk.first.first_slice
 		      << " + " << print_hex(offsets.data_offset) << " + " << print_hex(chunk.first.offset)
@@ -1152,7 +1185,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 		}
 		boost::uint64_t offset = 0;
 		
-		BOOST_FOREACH(const Files::value_type & location, chunk.second) {
+		for(const Files::value_type & location : chunk.second) {
 			const stream::file & file = location.first;
 			const std::vector<output_location> & output_locations = files_for_location[location.second];
 			
@@ -1174,7 +1207,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 					bool named = false;
 					boost::uint64_t size = 0;
 					const crypto::checksum * checksum = NULL;
-					BOOST_FOREACH(const output_location & output, output_locations) {
+					for(const output_location & output : output_locations) {
 						if(output.second != 0) {
 							continue;
 						}
@@ -1223,7 +1256,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 					}
 					
 				} else {
-					BOOST_FOREACH(const output_location & output, output_locations) {
+					for(const output_location & output : output_locations) {
 						if(output.second == 0) {
 							const processed_file * fileinfo = output.first;
 							if(o.list_sizes) {
@@ -1268,7 +1301,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 			// Open output files
 			boost::ptr_vector<file_output> single_outputs;
 			std::vector<file_output *> outputs;
-			BOOST_FOREACH(const output_location & output_loc, output_locations) {
+			for(const output_location & output_loc : output_locations) {
 				const processed_file * fileinfo = output_loc.first;
 				try {
 					
@@ -1308,10 +1341,10 @@ void process_file(const fs::path & installer, const extract_options & o) {
 			boost::uint64_t output_size = 0;
 			while(!file_source->eof()) {
 				char buffer[8192 * 10];
-				std::streamsize buffer_size = std::streamsize(boost::size(buffer));
+				std::streamsize buffer_size = std::streamsize(std::size(buffer));
 				std::streamsize n = file_source->read(buffer, buffer_size).gcount();
 				if(n > 0) {
-					BOOST_FOREACH(file_output * output, outputs) {
+					for(file_output * output : outputs) {
 						bool success = output->write(buffer, size_t(n));
 						if(!success) {
 							throw std::runtime_error("Error writing file \"" + output->path().string() + '"');
@@ -1333,7 +1366,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 				filetime = util::to_local_time(filetime);
 			}
 			
-			BOOST_FOREACH(file_output * output, outputs) {
+			for(file_output * output : outputs) {
 				
 				if(output->file()->is_multipart() && !output->is_complete()) {
 					continue;

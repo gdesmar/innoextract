@@ -1,0 +1,15 @@
+{
+  "dependencies": [
+    "liblzma",
+    {
+      "name": "libiconv",
+      "platform": "!windows"
+    },
+    "boost-iostreams",
+    "boost-filesystem",
+    "boost-program-options",
+    "boost-system",
+    "boost-date-time",
+    "boost-ptr-container"
+  ]
+}

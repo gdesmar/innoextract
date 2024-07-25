@@ -68,10 +68,7 @@
 #include <windows.h>
 #endif
 
-#include <boost/foreach.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/range/size.hpp>
 
 #include "util/log.hpp"
 #include "util/math.hpp"
@@ -237,7 +234,7 @@ bool is_extended_ascii(codepage_id codepage) {
 
 bool is_ascii(const std::string & data) {
 	// String in an extended ASCII encoding contains only ASCII characters
-	BOOST_FOREACH(char c, data) {
+	for(char c : data) {
 		if(boost::uint8_t(c) >= 128) {
 			return false;
 		}
@@ -540,7 +537,7 @@ void windows1252_to_utf8(const std::string & from, std::string & to) {
 	
 	bool warn = false;
 	
-	BOOST_FOREACH(char c, from) {
+	for(char c : from) {
 		
 		// Windows-1252 maps almost directly to Unicode - yay!
 		unicode_char chr = boost::uint8_t(c);
@@ -572,12 +569,12 @@ void utf8_to_windows1252(const std::string & from, std::string & to) {
 		// Windows-1252 maps almost directly to Unicode - yay!
 		if(chr >= 256 || (chr >= 128 && chr < 160)) {
 			size_t j = 0;
-			for(; j < size_t(boost::size(windows1252_replacements)); j++) {
+			for(; j < size_t(std::size(windows1252_replacements)); j++) {
 				if(chr == windows1252_replacements[j] && windows1252_replacements[j] != replacement_char) {
 					break;
 				}
 			}
-			if(j < size_t(boost::size(windows1252_replacements))) {
+			if(j < size_t(std::size(windows1252_replacements))) {
 				chr = unicode_char(128 + j);
 			} else {
 				chr = replacement_char;
@@ -596,7 +593,7 @@ void utf8_to_windows1252(const std::string & from, std::string & to) {
 
 #if INNOEXTRACT_HAVE_ICONV
 
-typedef boost::unordered_map<codepage_id, iconv_t> converter_map;
+typedef std::unordered_map<codepage_id, iconv_t> converter_map;
 converter_map converters;
 
 iconv_t get_converter(codepage_id codepage, bool reverse) {
@@ -619,7 +616,7 @@ iconv_t get_converter(codepage_id codepage, bool reverse) {
 	// Otherwise, try a few different codepage name prefixes
 	if(handle == iconv_t(-1)) {
 		const char * prefixes[] = { "MSCP", "CP", "WINDOWS-", "MS", "IBM", "IBM-", "" };
-		BOOST_FOREACH(const char * prefix, prefixes) {
+		for(const char * prefix : prefixes) {
 			std::ostringstream oss;
 			oss << prefix << std::setfill('0') << std::setw(3) << codepage;
 			handle = reverse ? iconv_open(oss.str().c_str(), "UTF-8") : iconv_open("UTF-8", oss.str().c_str());

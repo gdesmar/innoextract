@@ -32,7 +32,6 @@
 #include <string>
 
 #include <boost/cstdint.hpp>
-#include <boost/range/size.hpp>
 
 #include "util/encoding.hpp"
 #include "util/endian.hpp"

@@ -22,9 +22,6 @@
 
 #include <algorithm>
 
-#include "boost/range/begin.hpp"
-#include "boost/range/end.hpp"
-
 #include "setup/info.hpp"
 #include "setup/version.hpp"
 #include "util/load.hpp"
@@ -110,8 +107,8 @@ const windows_language languages[] = {
 
 util::codepage_id default_codepage_for_language(boost::uint32_t language) {
 	
-	const windows_language * entry = std::lower_bound(boost::begin(languages), boost::end(languages), language);
-	if(entry != boost::end(languages) && entry->language_id == language) {
+	const windows_language * entry = std::lower_bound(std::begin(languages), std::end(languages), language);
+	if(entry != std::end(languages) && entry->language_id == language) {
 		return entry->codepage;
 	}
 	

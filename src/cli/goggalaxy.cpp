@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -229,7 +228,7 @@ std::string create_constraint_expression(std::vector<constraint> & constraints) 
 	
 	std::string result;
 	
-	BOOST_FOREACH(const constraint & entry, constraints) {
+	for(const constraint & entry : constraints) {
 		
 		if(!result.empty()) {
 			result += " or ";
@@ -266,7 +265,7 @@ void parse_galaxy_files(setup::info & info, bool force) {
 	bool has_language_constraints = false;
 	std::set<std::string> all_languages;
 	
-	BOOST_FOREACH(setup::file_entry & file, info.files) {
+	for(setup::file_entry & file : info.files) {
 		
 		// Multi-part file info: file checksum, filename, part count
 		std::vector<std::string> start_info = parse_function_call(file.before_install, "before_install");
@@ -386,7 +385,7 @@ void parse_galaxy_files(setup::info & info, bool force) {
 			std::vector<std::string> check = parse_function_call(file.check, "check_if_install");
 			if(!check.empty() && !check[0].empty()) {
 				std::vector<constraint> languages = parse_constraints(check[0]);
-				BOOST_FOREACH(const constraint & language, languages) {
+				for(const constraint & language : languages) {
 					all_languages.insert(language.name);
 				}
 			}
@@ -407,7 +406,7 @@ void parse_galaxy_files(setup::info & info, bool force) {
 	 * Do this in a separate loop to not break constraint checks above.
 	 */
 	
-	BOOST_FOREACH(setup::file_entry & file, info.files) {
+	for(setup::file_entry & file : info.files) {
 		
 		if(file.destination.empty()) {
 			continue;
@@ -425,9 +424,9 @@ void parse_galaxy_files(setup::info & info, bool force) {
 				bool has_all_languages = false;
 				if(languages.size() >= all_languages.size() && all_languages.size() > 1) {
 					has_all_languages = true;
-					BOOST_FOREACH(const std::string & known_language, all_languages) {
+					for(const std::string & known_language : all_languages) {
 						bool has_language = false;
-						BOOST_FOREACH(const constraint & language, languages) {
+						for(const constraint & language : languages) {
 							if(!language.negated && language.name == known_language) {
 								has_language = true;
 								break;
@@ -454,7 +453,7 @@ void parse_galaxy_files(setup::info & info, bool force) {
 				setup::file_entry::flags arch = 0;
 				if(check[1] != "32#64#") {
 					std::vector<constraint> architectures = parse_constraints(check[1]);
-					BOOST_FOREACH(const constraint & architecture, architectures) {
+					for(const constraint & architecture : architectures) {
 						if(architecture.negated && architectures.size() > 1) {
 							log_warning << "Ignoring architecture for GOG Galaxy file " << file.destination
 							            << ": !" << architecture.name;
@@ -506,7 +505,7 @@ void parse_galaxy_files(setup::info & info, bool force) {
 			info.languages.clear();
 		}
 		info.languages.reserve(all_languages.size());
-		BOOST_FOREACH(const std::string & name, all_languages) {
+		for(const std::string & name : all_languages) {
 			setup::language_entry language;
 			language.name = name;
 			language.dialog_font_size = 0;
