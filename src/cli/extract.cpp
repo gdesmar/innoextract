@@ -1170,6 +1170,14 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	
 	progress extract_progress(total_size);
 	
+	if (o.extract && o.compiledcode) {
+		util::fstream stream;
+		stream.open(o.output_dir / "CompiledCode.bin", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+		stream.write(info.header.compiled_code.data(), static_cast<std::streamsize>(info.header.compiled_code.size()));
+		stream.close();
+		std::cout << " - " << '"' << color::white << "CompiledCode.bin" << color::reset << '"' << '\n';
+	}
+	
 	typedef boost::ptr_map<const processed_file *, file_output> multi_part_outputs;
 	multi_part_outputs multi_outputs;
 	

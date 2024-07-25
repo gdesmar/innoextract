@@ -150,6 +150,7 @@ int main(int argc, char * argv[]) {
 	modifiers.add_options()
 		("codepage", po::value<boost::uint32_t>(), "Encoding for ANSI strings")
 		("collisions", po::value<std::string>(), "How to handle duplicate files")
+		("compiledcode,C", "Extract compiled code")
 		("default-language", po::value<std::string>(), "Default language for renaming")
 		("dump", "Dump contents without converting filenames")
 		("lowercase,L", "Convert extracted filenames to lower-case")
@@ -266,6 +267,7 @@ int main(int argc, char * argv[]) {
 	o.gog_game_id = (options.count("gog-game-id") != 0);
 	o.show_password = (options.count("show-password") != 0);
 	o.check_password = (options.count("check-password") != 0);
+	o.compiledcode = (options.count("compiledcode") != 0);
 	if(options.count("info") != 0) {
 		o.list_components = true;
 		o.list_languages = true;
