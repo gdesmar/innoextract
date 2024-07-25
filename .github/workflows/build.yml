@@ -1,0 +1,25 @@
+name: innoextract CI
+
+on: [push]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          apt install -y build-essential cmake libboost-all-dev liblzma-dev
+      - name: Build innoextract
+        run: |
+          mkdir -p build 
+          cd build
+          cmake ..
+          make
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: innoextract
+          path: build/innoextract
