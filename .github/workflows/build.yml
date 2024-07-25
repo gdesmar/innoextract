@@ -1,9 +1,11 @@
 name: innoextract CI
 
-on: [push]
+on:
+  push:
+    # Runs on every pushed commit
 
 jobs:
-  build_and_test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,3 +25,8 @@ jobs:
         with:
           name: innoextract
           path: build/innoextract
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/innoextract
