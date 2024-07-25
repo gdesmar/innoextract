@@ -89,6 +89,7 @@ struct version {
 	}
 	
 	version_constant next();
+	version_constant previous();
 	
 };
 

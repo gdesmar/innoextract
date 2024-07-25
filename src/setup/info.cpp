@@ -23,6 +23,7 @@
 #include <cassert>
 #include <istream>
 #include <sstream>
+#include <iostream>
 
 #include "setup/component.hpp"
 #include "setup/data.hpp"
@@ -235,6 +236,8 @@ void info::load(std::istream & is, entry_types entries, util::codepage_id force_
 	
 	version.load(is);
 	
+	version_constant listed_version = version.value;
+	
 	if(!version.known) {
 		if(entries & NoUnknownVersion) {
 			std::ostringstream oss;
@@ -243,15 +246,17 @@ void info::load(std::istream & is, entry_types entries, util::codepage_id force_
 		}
 		log_warning << "Unexpected setup data version: "
 		            << color::white << version << color::reset;
+		version.value = version.previous();
+		std::cout << color::white << "This is not directly supported, "
+				  << "but will try to unpack it as version " << version << color::reset
+				  << std::endl;
 	}
-	
-	version_constant listed_version = version.value;
 	
 	// Some setup versions didn't increment the data version number when they should have.
 	// To work around this, we try to parse the headers for all data versions and use the first
 	// version that parses without warnings or errors.
-	bool ambiguous = !version.known || version.is_ambiguous();
-	if(version.is_ambiguous()) {
+	bool ambiguous = version.is_ambiguous();
+	if(ambiguous) {
 		// Force parsing all headers so that we don't miss any errors.
 		entries |= NoSkip;
 	}

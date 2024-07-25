@@ -422,4 +422,24 @@ version_constant version::next() {
 	return 0;
 }
 
+version_constant version::previous() {
+	
+	const known_version * begin = std::begin(versions);
+	const known_version * result = std::upper_bound(begin, std::end(versions), value);
+	if(result != begin) {
+		result--;
+		return result->version;
+	}
+	
+	const known_legacy_version * legacy_begin = std::begin(legacy_versions);
+	const known_legacy_version * legacy_result;
+	legacy_result = std::upper_bound(legacy_begin, std::end(legacy_versions), value);
+	if(legacy_result != legacy_begin) {
+		legacy_result--;
+		return legacy_result->version;
+	}
+	
+	return 0;
+}
+
 } // namespace setup
