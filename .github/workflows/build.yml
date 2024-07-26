@@ -1,0 +1,38 @@
+name: innoextract CI
+
+on:
+  push:
+    # Runs on every pushed commit
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Forced to run on debian:buster since debian:bullseye's Boost is not
+    # functional to compile executables statically with bz2 and zlib.
+    container: debian:buster
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential cmake libboost-all-dev liblzma-dev
+          # Only because we are running on debian:buster
+          apt-get install -y zlib1g-dev libbz2-dev
+      - name: Build innoextract
+        run: |
+          mkdir -p build 
+          cd build
+          cmake -DUSE_STATIC_LIBS=ON ..
+          make
+          strip innoextract
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: innoextract
+          path: build/innoextract
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/innoextract

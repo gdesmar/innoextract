@@ -27,7 +27,10 @@
 #include <boost/cstdint.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/directory.hpp>
+// Debian Buster has Boost Filesystem 1.67.0.1 installed by default
+// directory.hpp was split from the main in 1.72
+// https://www.boost.org/users/history/version_1_72_0.html
+// #include <boost/filesystem/directory.hpp>
 
 #include "util/console.hpp"
 #include "util/load.hpp"
