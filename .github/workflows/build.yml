@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake libboost-all-dev liblzma-dev
+          apt-get update
+          apt-get install -y build-essential cmake libboost-all-dev liblzma-dev
           # Only because we are running on debian:buster
-          sudo apt-get install -y zlib1g-dev libbz2-dev
+          apt-get install -y zlib1g-dev libbz2-dev
       - name: Build innoextract
         run: |
           mkdir -p build 
