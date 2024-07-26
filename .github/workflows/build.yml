@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Forced to run on debian:buster since debian:bullseye's Boost is not
+    # functional to compile executables statically WITH bz2 and lzma.
+    container: debian:buster
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -14,12 +17,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake libboost-all-dev liblzma-dev
+          # Only because we are running on debian:buster
+          sudo apt-get install -y zlib1g-dev libbz2-dev
       - name: Build innoextract
         run: |
           mkdir -p build 
           cd build
-          cmake ..
+          cmake -DUSE_STATIC_LIBS=ON ..
           make
+          strip innoextract
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:

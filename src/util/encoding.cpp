@@ -72,6 +72,7 @@
 
 #include "util/log.hpp"
 #include "util/math.hpp"
+#include <unordered_map>
 
 namespace util {
 
