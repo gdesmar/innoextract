@@ -60,6 +60,7 @@ struct extract_options {
 	#ifdef DEBUG
 	bool dump_headers; //!< Dump setup headers
 	#endif
+	bool crack; //!< Crack passworded file
 	bool list; //!< List files
 	bool test; //!< Test files (but don't extract)
 	bool extract; //!< Extract files

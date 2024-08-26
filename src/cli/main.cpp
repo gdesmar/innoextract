@@ -129,6 +129,7 @@ int main(int argc, char * argv[]) {
 	
 	po::options_description action("Actions");
 	action.add_options()
+		("crack", "Crack passworded file")
 		("test,t", "Only verify checksums, don't write anything")
 		("extract,e", "Extract files (default action)")
 		("list,l", "Only list files, don't write anything")
@@ -261,6 +262,7 @@ int main(int argc, char * argv[]) {
 	bool explicit_list = (options.count("list") != 0);
 	o.list = explicit_list || o.list_sizes || o.list_checksums;
 	o.extract = (options.count("extract") != 0);
+	o.crack = (options.count("crack") != 0);
 	o.test = (options.count("test") != 0);
 	o.list_languages = (options.count("list-languages") != 0);
 	o.list_components = (options.count("list-components") != 0);

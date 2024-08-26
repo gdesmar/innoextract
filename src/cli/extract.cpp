@@ -25,6 +25,8 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <iterator>
+#include <regex>
 #include <sstream>
 #include <vector>
 #include <limits>
@@ -918,6 +920,17 @@ void create_output_directory(const extract_options & o) {
 	
 }
 
+bool test_password(const std::string & password, const setup::info & info) {
+	
+	if(info.header.options & setup::header::Password) {
+		crypto::hasher checksum(info.header.password.type);
+		checksum.update(info.header.password_salt.c_str(), info.header.password_salt.length());
+		checksum.update(password.c_str(), password.length());
+		return (checksum.finalize() == info.header.password);
+	}
+	return false;
+}
+
 } // anonymous namespace
 
 void process_file(const fs::path & installer, const extract_options & o) {
@@ -1025,6 +1038,37 @@ void process_file(const fs::path & installer, const extract_options & o) {
 		throw format_error(oss.str());
 	}
 	
+	if (o.crack) {
+		if (!(info.header.options & setup::header::EncryptionUsed)) {
+			log_warning << "File is not password protected, cannot crack";
+			return;
+		}
+		std::string compiledcode = info.header.compiled_code;
+		std::regex possible_password_regex("(([\x20-\x7e]\\0?){6,})");
+		auto passwords_begin = std::sregex_iterator(compiledcode.begin(), compiledcode.end(), possible_password_regex);
+		auto passwords_end = std::sregex_iterator();
+		std::vector<std::string> possible_passwords;
+
+		for (std::sregex_iterator i = passwords_begin; i != passwords_end; ++i)
+		{
+			possible_passwords.push_back((*i).str());
+		}
+
+		std::string password;
+		std::regex null_re("\\0");
+		for (std::vector<std::string>::reverse_iterator riter = possible_passwords.rbegin(); riter != possible_passwords.rend(); ++riter) {
+			std::string non_null_password = std::regex_replace(*riter, null_re, "");
+			util::from_utf8(non_null_password, password, info.codepage);
+			if (test_password(password, info)) {
+				std::cout << "Password found: " << non_null_password << '\n';
+				return;
+			}
+			password.clear();
+		}
+		std::cout << "Password not found, think of opening an issue if you have an idea why\n";
+		return;
+	}
+	
 	if(o.gog_galaxy && (o.list || o.test || o.extract || o.list_languages || o.list_components)) {
 		gog::parse_galaxy_files(info, o.gog);
 	}
@@ -1038,17 +1082,12 @@ void process_file(const fs::path & installer, const extract_options & o) {
 		}
 	} else {
 		util::from_utf8(o.password, password, info.codepage);
-		if(info.header.options & setup::header::Password) {
-			crypto::hasher checksum(info.header.password.type);
-			checksum.update(info.header.password_salt.c_str(), info.header.password_salt.length());
-			checksum.update(password.c_str(), password.length());
-			if(checksum.finalize() != info.header.password) {
-				if(o.check_password) {
-					throw std::runtime_error("Incorrect password provided");
-				}
-				log_error << "Incorrect password provided";
-				password.clear();
+		if (!test_password(password, info)) {
+			if(o.check_password) {
+				throw std::runtime_error("Incorrect password provided");
 			}
+			log_error << "Incorrect password provided";
+			password.clear();
 		}
 		#if !INNOEXTRACT_HAVE_ARC4
 		if((o.extract || o.test) && (info.header.options & setup::header::EncryptionUsed)) {
