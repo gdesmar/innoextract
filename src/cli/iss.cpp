@@ -6,6 +6,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <regex>
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -750,6 +751,30 @@ static std::string IntToHex(const boost::uint32_t & i, const int & digits) {
 	return oss.str();
 }
 
+static std::string ConvertBinaryRegistry(const std::string & value) {
+	std::ostringstream oss;
+	
+	// WARNING for IntToHex: conversion to 'uint32_t' {aka 'unsigned int'} from 'char' may change the sign of the result
+	for(size_t i=0; i < value.length(); i++) {
+		oss << IntToHex(value[i], 2) << ' ';
+	}
+	std::string t = oss.str();
+	if (t.length() > 0) {
+		t = t.substr(0, t.length()-1);
+	}
+	return t;
+}
+
+static std::string ConvertMultiStringRegistry(const std::string & value) {
+	// The original code at https://github.com/WhatTheBlock/innounp/blob/main/src/RebuildScript.pas#L563
+	// seem to add the `break}` to the s variable instead of the t one, which is probably a typo.
+	std::string t = "";
+	t.assign(value);
+	std::regex null_re("\\0");
+	t = std::regex_replace(t, null_re, "{break}");
+	return t;
+}
+
 static void print_entry(util::ofstream & ofs, const setup::info & info,
                         size_t i, const setup::registry_entry & entry) {
 	(void)i;
@@ -787,23 +812,12 @@ static void print_entry(util::ofstream & ofs, const setup::info & info,
 			case setup::registry_entry::Binary:
 				vType = "Binary";
 				// TODO: Find an example to make sure this is the expected value
-				std::ostringstream oss;
-				for(size_t i=0; i < entry.value.length(); i++) {
-					oss << IntToHex(entry.value[i], 2) << ' ';
-				}
-				t = oss.str();
-				if (t.length() > 0) {
-					t = t.substr(0, t.length()-1);
-				}
+				t = ConvertBinaryRegistry(entry.value);
 				break;
 			case setup::registry_entry::MultiString:
 				vType = "MultiSZ";
-				t = entry.value;
-				std::regex null_re("\\0");
-				// The original code at https://github.com/WhatTheBlock/innounp/blob/main/src/RebuildScript.pas#L563
-				// seem to add the `break}` to the s variable instead of the t one, which is probably a typo.
 				// TODO: Find an example to make sure this is the expected value
-				t = std::regex_replace(t, null_re, "{break}");
+				t = ConvertMultiStringRegistry(entry.value);
 				break;
 			case setup::registry_entry::QWord:
 				vType = "Qword";
