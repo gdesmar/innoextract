@@ -70,6 +70,7 @@ struct extract_options {
 	bool show_password; //!< Show password check information
 	bool check_password; //!< Abort if the provided password is incorrect
 	
+	bool iss_file; //!< Extract iss file
 	bool compiledcode; //!< Extract compiled code
 	
 	bool preserve_file_times; //!< Set timestamps of extracted files

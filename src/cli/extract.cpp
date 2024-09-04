@@ -46,6 +46,7 @@
 #include "cli/debug.hpp"
 #include "cli/gog.hpp"
 #include "cli/goggalaxy.hpp"
+#include "cli/iss.hpp"
 
 #include "crypto/checksum.hpp"
 #include "crypto/hasher.hpp"
@@ -908,14 +909,14 @@ processed_entries filter_entries(const extract_options & o, const setup::info & 
 	return processed;
 }
 
-void create_output_directory(const extract_options & o) {
+void create_single_directory(const boost::filesystem::path & o) {
 	
 	try {
-		if(!o.output_dir.empty() && !fs::exists(o.output_dir)) {
-			fs::create_directory(o.output_dir);
+		if(!o.empty() && !fs::exists(o)) {
+			fs::create_directory(o);
 		}
 	} catch(...) {
-		throw std::runtime_error("Could not create output directory \"" + o.output_dir.string() + '"');
+		throw std::runtime_error("Could not create directory \"" + o.string() + '"');
 	}
 	
 }
@@ -980,7 +981,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	
 	#ifdef DEBUG
 	if(o.dump_headers)  {
-		create_output_directory(o);
+		create_single_directory(o.output_dir);
 		dump_headers(ifs, offsets, o);
 		return;
 	}
@@ -1003,6 +1004,9 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	}
 	if(!o.extract_unknown) {
 		entries |= setup::info::NoUnknownVersion;
+	}
+	if (o.extract && o.iss_file) {
+		entries |= setup::info::NoSkip;
 	}
 #ifdef DEBUG
 	if(logger::debug) {
@@ -1108,7 +1112,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	processed_entries processed = filter_entries(o, info);
 	
 	if(o.extract) {
-		create_output_directory(o);
+		create_single_directory(o.output_dir);
 	}
 	
 	if(o.list || o.extract) {
@@ -1135,12 +1139,7 @@ void process_file(const fs::path & installer, const extract_options & o) {
 			}
 			
 			if(o.extract) {
-				fs::path dir = o.output_dir / path;
-				try {
-					fs::create_directory(dir);
-				} catch(...) {
-					throw std::runtime_error("Could not create directory \"" + dir.string() + '"');
-				}
+				create_single_directory(o.output_dir / path);
 			}
 			
 		}
@@ -1208,13 +1207,22 @@ void process_file(const fs::path & installer, const extract_options & o) {
 	}
 	
 	progress extract_progress(total_size);
+
+	if (o.extract && (o.iss_file || o.compiledcode)) {
+		create_single_directory(o.output_dir / "embedded");
+	}
 	
 	if (o.extract && o.compiledcode) {
 		util::fstream stream;
-		stream.open(o.output_dir / "CompiledCode.bin", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+		stream.open(o.output_dir / "embedded" / "CompiledCode.bin", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
 		stream.write(info.header.compiled_code.data(), static_cast<std::streamsize>(info.header.compiled_code.size()));
 		stream.close();
-		std::cout << " - " << '"' << color::white << "CompiledCode.bin" << color::reset << '"' << '\n';
+		std::cout << " - " << '"' << color::white << "embedded/CompiledCode.bin" << color::reset << '"' << '\n';
+	}
+
+	if (o.extract && o.iss_file) {
+		iss::dump_iss(info, o, installer);
+		std::cout << " - " << '"' << color::white << "install_script.iss" << color::reset << '"' << '\n';
 	}
 	
 	typedef boost::ptr_map<const processed_file *, file_output> multi_part_outputs;

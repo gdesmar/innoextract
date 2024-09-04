@@ -154,6 +154,7 @@ int main(int argc, char * argv[]) {
 		("compiledcode,C", "Extract compiled code")
 		("default-language", po::value<std::string>(), "Default language for renaming")
 		("dump", "Dump contents without converting filenames")
+		("iss-file", "Extract iss file")
 		("lowercase,L", "Convert extracted filenames to lower-case")
 		("timestamps,T", po::value<std::string>(), "Timezone for file times or \"local\" or \"none\"")
 		("output-dir,d", po::value<std::string>(), "Extract files into the given directory")
@@ -269,6 +270,7 @@ int main(int argc, char * argv[]) {
 	o.gog_game_id = (options.count("gog-game-id") != 0);
 	o.show_password = (options.count("show-password") != 0);
 	o.check_password = (options.count("check-password") != 0);
+	o.iss_file = (options.count("iss-file") != 0);
 	o.compiledcode = (options.count("compiledcode") != 0);
 	if(options.count("info") != 0) {
 		o.list_components = true;

@@ -86,6 +86,8 @@ struct info {
 	
 	setup::version version;
 	
+	setup::version listed_version;
+	
 	util::codepage_id codepage;
 	
 	setup::header header;

@@ -338,6 +338,8 @@ set(INNOEXTRACT_SOURCES
 	src/cli/gog.cpp
 	src/cli/goggalaxy.hpp
 	src/cli/goggalaxy.cpp
+	src/cli/iss.hpp
+	src/cli/iss.cpp
 	src/cli/main.cpp
 	
 	src/crypto/adler32.hpp
