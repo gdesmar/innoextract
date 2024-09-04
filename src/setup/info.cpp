@@ -53,7 +53,7 @@ void info::load_entries(std::istream & is, entry_types entries, size_t count,
                         std::vector<Entry> & result, entry_types::enum_type entry_type) {
 	
 	result.clear();
-	if(entries & entry_type) {
+	if(entries & (entry_type | info::NoSkip)) {
 		result.resize(count);
 		for(size_t i = 0; i < count; i++) {
 			result[i].load(is, *this);
@@ -236,7 +236,8 @@ void info::load(std::istream & is, entry_types entries, util::codepage_id force_
 	
 	version.load(is);
 	
-	version_constant listed_version = version.value;
+	listed_version = version;
+	version_constant fallback_version = version.value;
 	
 	if(!version.known) {
 		if(entries & NoUnknownVersion) {
@@ -275,7 +276,7 @@ void info::load(std::istream & is, entry_types entries, util::codepage_id force_
 			if(warnings) {
 				// Parsed without errors but with warnings - try other versions first
 				if(!parsed_without_errors) {
-					listed_version = version.value;
+					fallback_version = version.value;
 					parsed_without_errors = true;
 				}
 				throw std::exception();
@@ -292,9 +293,9 @@ void info::load(std::istream & is, entry_types entries, util::codepage_id force_
 			version_constant next_version = version.next();
 			
 			if(!ambiguous || !next_version) {
-				if(version.value != listed_version) {
+				if(version.value != fallback_version) {
 					// Rewind to a previous version that had better results and report those
-					version.value = listed_version;
+					version.value = fallback_version;
 					warnings.restore();
 					try_load(is, entries, force_codepage);
 				} else {

@@ -66,14 +66,14 @@ STORED_ENUM_MAP(stored_bool_auto_no_yes, header::Auto,
 STORED_ENUM_MAP(stored_privileges_0, header::NoPrivileges,
 	header::NoPrivileges,
 	header::PowerUserPrivileges,
-	header::AdminPriviliges,
+	header::AdminPrivileges,
 );
 
 // post- 5.3.7
 STORED_ENUM_MAP(stored_privileges_1, header::NoPrivileges,
 	header::NoPrivileges,
 	header::PowerUserPrivileges,
-	header::AdminPriviliges,
+	header::AdminPrivileges,
 	header::LowestPrivileges
 );
 
@@ -673,7 +673,7 @@ void header::load(std::istream & is, const version & version) {
 	options |= flagreader;
 	
 	if(version < INNO_VERSION(3, 0, 4)) {
-		privileges_required = (options & AdminPrivilegesRequired) ? AdminPriviliges : NoPrivileges;
+		privileges_required = (options & AdminPrivilegesRequired) ? AdminPrivileges : NoPrivileges;
 	}
 	
 	if(version < INNO_VERSION(4, 0, 10)) {

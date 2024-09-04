@@ -251,7 +251,7 @@ struct header {
 	enum privilege_level {
 		NoPrivileges,
 		PowerUserPrivileges,
-		AdminPriviliges,
+		AdminPrivileges,
 		LowestPrivileges
 	};
 	privilege_level privileges_required;
