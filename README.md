@@ -101,6 +101,12 @@ Documentation is also available as a man page:
 
     $ man 1 innoextract
 
+## Password cracking
+
+The password should always be present and retrievable, the issue is that it may be obfuscated. If you are lucky, and the password is not obfuscated, you can get it by executing `innoextract --crack <YOUR_FILE>`.
+
+If it does not find the password, you will need to use `innoextract --compiledcode <YOUR_FILE>`, which should extract a file named `embedded/CompiledCode.bin`. That file can be decoded using any ifps reader. An easy one can be found in BinaryRefinery, which can be installed with `pip install binary-refinery`. You should now have access to the ifps command, and will be able to execute `cat embedded/CompiledCode.bin | ifps > embedded/CompiledCode.txt` to create the text version of CompiledCode. That file should contain your password, but you will need to read it carefully to understand what it's doing.
+
 ## Limitations
 
 * Limited support for filtering by name.
